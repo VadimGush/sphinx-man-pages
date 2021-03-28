@@ -1,26 +1,36 @@
-# Python script for migrating man-pages to the new RST format
 #!/bin/python3
+# Python script for migrating man-pages to the new RST format
 
-from operations.transform import transform
 import os
+import re
+
+from parser.parse import parse
 
 # Path to directory with man-pages
 input_directory = "input"
 # Path to directory with sphinx docs
 output_directory = "output"
 
+# File with documentation is any file that has
+# a dot with a digit at the end of the filename
+man_file_pattern = re.compile(r".*\.\d$")
+
 def __main__():
-    print("=> Migration script started.")
+    print("=> Migration script started\n")
 
     files = get_files(input_directory)
     for file in files:
-        print(file)
+        process_file(file)
+        break
 
-    # On ever man-page file transform to RST format
+    print("\n=> Done!")
 
-    # Safe file to output directory
-
-    print("=> Done!")
+def process_file(file_path):
+    # is it file with documentation
+    if man_file_pattern.match(file_path) is not None:
+        print(file_path)
+        file = open(file_path)
+        parse(file.readlines())
 
 def get_files(path):
     files = []
