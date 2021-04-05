@@ -21,6 +21,7 @@ def __main__():
     files = get_files(input_directory)
     for file in files:
         process_file(file)
+        # Remove this break that I use for testing
         break
 
     print("\n=> Done!")

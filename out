@@ -1,0 +1,352 @@
+=> Migration script started
+
+input/man4/random.4
+Entry.COMMENT		> Copyright (c) 1997 John S. Kallal (kallal@voicenet.com)
+Entry.COMMENT		> 
+Entry.COMMENT		> %%%LICENSE_START(GPLv2+_DOC_ONEPARA)
+Entry.COMMENT		> This is free documentation; you can redistribute it and/or
+Entry.COMMENT		> modify it under the terms of the GNU General Public License as
+Entry.COMMENT		> published by the Free Software Foundation; either version 2 of
+Entry.COMMENT		> the License, or (at your option) any later version.
+Entry.COMMENT		> %%%LICENSE_END
+Entry.COMMENT		> 
+Entry.COMMENT		> Some changes by tytso and aeb.
+Entry.COMMENT		> 
+Entry.COMMENT		> 2004-12-16, John V. Belmonte/mtk, Updated init and quit scripts
+Entry.COMMENT		> 2004-04-08, AEB, Improved description of read from /dev/urandom
+Entry.COMMENT		> 2008-06-20, George Spelvin <linux@horizon.com>,
+Entry.COMMENT		> Matt Mackall <mpm@selenic.com>
+Entry.COMMENT		> 
+Entry.TITLE		> RANDOM 4 2021-03-22 "Linux" "Linux Programmer's Manual"
+Entry.SECTION		> NAME
+Entry.NONE		> random, urandom \- kernel random number source devices 
+Entry.SECTION		> SYNOPSIS
+Entry.NO_FILL		> 
+Entry.NONE		> #include <linux/random.h> 
+Entry.PARAGRAPH		> 
+Entry.BOLD_I		> "int ioctl(" fd ", RND" request ", " param ");"
+Entry.FILL		> 
+Entry.SECTION		> DESCRIPTION
+Entry.NONE		> The character special files \fI/dev/random\fP and 
+Entry.NONE		> \fI/dev/urandom\fP (present since Linux 1.3.30) 
+Entry.NONE		> provide an interface to the kernel's random number generator. 
+Entry.NONE		> The file 
+Entry.ITALICS		> /dev/random
+Entry.NONE		> has major device number 1 and minor device number 8. 
+Entry.NONE		> The file 
+Entry.ITALICS		> /dev/urandom
+Entry.NONE		> has major device number 1 and minor device number 9. 
+Entry.PARAGRAPH		> 
+Entry.NONE		> The random number generator gathers environmental noise 
+Entry.NONE		> from device drivers and other sources into an entropy pool. 
+Entry.NONE		> The generator also keeps an estimate of the 
+Entry.NONE		> number of bits of noise in the entropy pool. 
+Entry.NONE		> From this entropy pool, random numbers are created. 
+Entry.PARAGRAPH		> 
+Entry.NONE		> Linux 3.17 and later provides the simpler and safer 
+Entry.BOLD_R		> getrandom (2)
+Entry.NONE		> interface which requires no special files; 
+Entry.NONE		> see the 
+Entry.BOLD_R		> getrandom (2)
+Entry.NONE		> manual page for details. 
+Entry.PARAGRAPH		> 
+Entry.NONE		> When read, the 
+Entry.ITALICS		> /dev/urandom
+Entry.NONE		> device returns random bytes using a pseudorandom 
+Entry.NONE		> number generator seeded from the entropy pool. 
+Entry.NONE		> Reads from this device do not block (i.e., the CPU is not yielded), 
+Entry.NONE		> but can incur an appreciable delay when requesting large amounts of data. 
+Entry.PARAGRAPH		> 
+Entry.NONE		> When read during early boot time, 
+Entry.ITALICS_R		> /dev/urandom
+Entry.NONE		> may return data prior to the entropy pool being initialized. 
+Entry.COMMENT		> This is a real problem; see
+Entry.COMMENT		> commit 9b4d008787f864f17d008c9c15bbe8a0f7e2fc24
+Entry.NONE		> If this is of concern in your application, use 
+Entry.BOLD_R		> getrandom (2)
+Entry.NONE		> or \fI/dev/random\fP instead. 
+Entry.PARAGRAPH		> 
+Entry.NONE		> The \fI/dev/random\fP device is a legacy interface which dates back to 
+Entry.NONE		> a time where the cryptographic primitives used in the implementation 
+Entry.NONE		> of \fI/dev/urandom\fP were not widely trusted. 
+Entry.NONE		> It will return random bytes only within the estimated number of 
+Entry.NONE		> bits of fresh noise in the entropy pool, blocking if necessary. 
+Entry.NONE		> \fI/dev/random\fP is suitable for applications that need 
+Entry.NONE		> high quality randomness, and can afford indeterminate delays. 
+Entry.PARAGRAPH		> 
+Entry.NONE		> When the entropy pool is empty, reads from \fI/dev/random\fP will block 
+Entry.NONE		> until additional environmental noise is gathered. 
+Entry.NONE		> If 
+Entry.BOLD_R		> open (2)
+Entry.NONE		> is called for 
+Entry.ITALICS		> /dev/random
+Entry.NONE		> with the 
+Entry.BOLD_R		> O_NONBLOCK
+Entry.NONE		> flag, a subsequent 
+Entry.BOLD_R		> read (2)
+Entry.NONE		> will not block if the requested number of bytes is not available. 
+Entry.NONE		> Instead, the available bytes are returned. 
+Entry.NONE		> If no byte is available, 
+Entry.BOLD_R		> read (2)
+Entry.NONE		> will return \-1 and 
+Entry.ITALICS		> errno
+Entry.NONE		> will be set to 
+Entry.BOLD_R		> EAGAIN .
+Entry.PARAGRAPH		> 
+Entry.NONE		> The 
+Entry.BOLD		> O_NONBLOCK
+Entry.NONE		> flag has no effect when opening 
+Entry.ITALICS_R		> /dev/urandom .
+Entry.NONE		> When calling 
+Entry.BOLD_R		> read (2)
+Entry.NONE		> for the device 
+Entry.ITALICS_R		> /dev/urandom ,
+Entry.NONE		> reads of up to 256 bytes will return as many bytes as are requested 
+Entry.NONE		> and will not be interrupted by a signal handler. 
+Entry.NONE		> Reads with a buffer over this limit may return less than the 
+Entry.NONE		> requested number of bytes or fail with the error 
+Entry.BOLD_R		> EINTR ,
+Entry.NONE		> if interrupted by a signal handler. 
+Entry.PARAGRAPH		> 
+Entry.NONE		> Since Linux 3.16, 
+Entry.COMMENT		> commit 79a8468747c5f95ed3d5ce8376a3e82e0c5857fc
+Entry.NONE		> a 
+Entry.BOLD_R		> read (2)
+Entry.NONE		> from 
+Entry.ITALICS_R		> /dev/urandom
+Entry.NONE		> will return at most 32\ MB. 
+Entry.NONE		> A 
+Entry.BOLD_R		> read (2)
+Entry.NONE		> from 
+Entry.ITALICS_R		> /dev/random
+Entry.NONE		> will return at most 512 bytes 
+Entry.COMMENT		> SEC_XFER_SIZE in drivers/char/random.c
+Entry.NONE		> (340 bytes on Linux kernels before version 2.6.12). 
+Entry.PARAGRAPH		> 
+Entry.NONE		> Writing to \fI/dev/random\fP or \fI/dev/urandom\fP will update the 
+Entry.NONE		> entropy pool with the data written, but this will not result in a 
+Entry.NONE		> higher entropy count. 
+Entry.NONE		> This means that it will impact the contents 
+Entry.NONE		> read from both files, but it will not make reads from 
+Entry.NONE		> \fI/dev/random\fP faster. 
+Entry.SUBSECTION		> Usage
+Entry.NONE		> The 
+Entry.ITALICS_R		> /dev/random
+Entry.NONE		> interface is considered a legacy interface, and 
+Entry.ITALICS_R		> /dev/urandom
+Entry.NONE		> is preferred and sufficient in all use cases, with the exception of 
+Entry.NONE		> applications which require randomness during early boot time; for 
+Entry.NONE		> these applications, 
+Entry.BOLD_R		> getrandom (2)
+Entry.NONE		> must be used instead, 
+Entry.NONE		> because it will block until the entropy pool is initialized. 
+Entry.PARAGRAPH		> 
+Entry.NONE		> If a seed file is saved across reboots as recommended below, 
+Entry.NONE		> the output is 
+Entry.NONE		> cryptographically secure against attackers without local root access as 
+Entry.NONE		> soon as it is reloaded in the boot sequence, and perfectly adequate for 
+Entry.NONE		> network encryption session keys. 
+Entry.NONE		> (All major Linux distributions have saved the seed file across reboots 
+Entry.NONE		> since 2000 at least.) 
+Entry.NONE		> Since reads from 
+Entry.ITALICS		> /dev/random
+Entry.NONE		> may block, users will usually want to open it in nonblocking mode 
+Entry.NONE		> (or perform a read with timeout), 
+Entry.NONE		> and provide some sort of user notification if the desired 
+Entry.NONE		> entropy is not immediately available. 
+Entry.COMMENT		> 
+Entry.SUBSECTION		> Configuration
+Entry.NONE		> If your system does not have 
+Entry.NONE		> \fI/dev/random\fP and \fI/dev/urandom\fP created already, they 
+Entry.NONE		> can be created with the following commands: 
+Entry.PARAGRAPH		> 
+Entry.INDENT		> +4n
+Entry.EXAMPLE_S		> 
+Entry.NONE		> mknod \-m 666 /dev/random c 1 8 
+Entry.NONE		> mknod \-m 666 /dev/urandom c 1 9 
+Entry.NONE		> chown root:root /dev/random /dev/urandom 
+Entry.EXAMPLE_E		> 
+Entry.INDENT		> 
+Entry.PARAGRAPH		> 
+Entry.NONE		> When a Linux system starts up without much operator interaction, 
+Entry.NONE		> the entropy pool may be in a fairly predictable state. 
+Entry.NONE		> This reduces the actual amount of noise in the entropy pool 
+Entry.NONE		> below the estimate. 
+Entry.NONE		> In order to counteract this effect, it helps to carry 
+Entry.NONE		> entropy pool information across shut-downs and start-ups. 
+Entry.NONE		> To do this, add the lines to an appropriate script 
+Entry.NONE		> which is run during the Linux system start-up sequence: 
+Entry.PARAGRAPH		> 
+Entry.INDENT		> +4n
+Entry.EXAMPLE_S		> 
+Entry.NONE		> echo "Initializing random number generator..." 
+Entry.NONE		> random_seed=/var/run/random\-seed 
+Entry.NONE		> # Carry a random seed from start\-up to start\-up 
+Entry.NONE		> # Load and then save the whole entropy pool 
+Entry.NONE		> if [ \-f $random_seed ]; then 
+Entry.NONE		>     cat $random_seed >/dev/urandom 
+Entry.NONE		> else 
+Entry.NONE		>     touch $random_seed 
+Entry.NONE		> fi 
+Entry.NONE		> chmod 600 $random_seed 
+Entry.NONE		> poolfile=/proc/sys/kernel/random/poolsize 
+Entry.NONE		> [ \-r $poolfile ] && bits=$(cat $poolfile) || bits=4096 
+Entry.NONE		> bytes=$(expr $bits / 8) 
+Entry.NONE		> dd if=/dev/urandom of=$random_seed count=1 bs=$bytes 
+Entry.EXAMPLE_E		> 
+Entry.INDENT		> 
+Entry.PARAGRAPH		> 
+Entry.NONE		> Also, add the following lines in an appropriate script which is 
+Entry.NONE		> run during the Linux system shutdown: 
+Entry.PARAGRAPH		> 
+Entry.INDENT		> +4n
+Entry.EXAMPLE_S		> 
+Entry.NONE		> # Carry a random seed from shut\-down to start\-up 
+Entry.NONE		> # Save the whole entropy pool 
+Entry.NONE		> echo "Saving random seed..." 
+Entry.NONE		> random_seed=/var/run/random\-seed 
+Entry.NONE		> touch $random_seed 
+Entry.NONE		> chmod 600 $random_seed 
+Entry.NONE		> poolfile=/proc/sys/kernel/random/poolsize 
+Entry.NONE		> [ \-r $poolfile ] && bits=$(cat $poolfile) || bits=4096 
+Entry.NONE		> bytes=$(expr $bits / 8) 
+Entry.NONE		> dd if=/dev/urandom of=$random_seed count=1 bs=$bytes 
+Entry.EXAMPLE_E		> 
+Entry.INDENT		> 
+Entry.PARAGRAPH		> 
+Entry.NONE		> In the above examples, we assume Linux 2.6.0 or later, where 
+Entry.ITALICS_R		> /proc/sys/kernel/random/poolsize
+Entry.NONE		> returns the size of the entropy pool in bits (see below). 
+Entry.COMMENT		> 
+Entry.SUBSECTION		> /proc interfaces
+Entry.NONE		> The files in the directory 
+Entry.ITALICS		> /proc/sys/kernel/random
+Entry.NONE		> (present since 2.3.16) provide additional information about the 
+Entry.ITALICS		> /dev/random
+Entry.NONE		> device: 
+Entry.PAR_TAG_N		> 
+Entry.ITALICS		> entropy_avail
+Entry.NONE		> This read-only file gives the available entropy, in bits. 
+Entry.NONE		> This will be a number in the range 0 to 4096. 
+Entry.PAR_TAG_N		> 
+Entry.ITALICS		> poolsize
+Entry.NONE		> This file 
+Entry.NONE		> gives the size of the entropy pool. 
+Entry.NONE		> The semantics of this file vary across kernel versions: 
+Entry.MARGIN_S		> 
+Entry.PAR_TAG_N		> 
+Entry.NONE		> Linux 2.4: 
+Entry.NONE		> This file gives the size of the entropy pool in 
+Entry.ITALICS_R		> bytes .
+Entry.NONE		> Normally, this file will have the value 512, but it is writable, 
+Entry.NONE		> and can be changed to any value for which an algorithm is available. 
+Entry.NONE		> The choices are 32, 64, 128, 256, 512, 1024, or 2048. 
+Entry.PAR_TAG_N		> 
+Entry.NONE		> Linux 2.6 and later: 
+Entry.NONE		> This file is read-only, and gives the size of the entropy pool in 
+Entry.ITALICS_R		> bits .
+Entry.NONE		> It contains the value 4096. 
+Entry.MARGIN_E		> 
+Entry.PAR_TAG_N		> 
+Entry.ITALICS		> read_wakeup_threshold
+Entry.NONE		> This file 
+Entry.NONE		> contains the number of bits of entropy required for waking up processes 
+Entry.NONE		> that sleep waiting for entropy from 
+Entry.ITALICS_R		> /dev/random .
+Entry.NONE		> The default is 64. 
+Entry.PAR_TAG_N		> 
+Entry.ITALICS		> write_wakeup_threshold
+Entry.NONE		> This file 
+Entry.NONE		> contains the number of bits of entropy below which we wake up 
+Entry.NONE		> processes that do a 
+Entry.BOLD_R		> select (2)
+Entry.NONE		> or 
+Entry.BOLD_R		> poll (2)
+Entry.NONE		> for write access to 
+Entry.ITALICS_R		> /dev/random .
+Entry.NONE		> These values can be changed by writing to the files. 
+Entry.PAR_TAG_N		> 
+Entry.ITALICS_R		> uuid " and " boot_id
+Entry.NONE		> These read-only files 
+Entry.NONE		> contain random strings like 6fd5a44b-35f4-4ad4-a9b9-6b9be13e1fe9. 
+Entry.NONE		> The former is generated afresh for each read, the latter was 
+Entry.NONE		> generated once. 
+Entry.COMMENT		> 
+Entry.SUBSECTION		> ioctl(2) interface
+Entry.NONE		> The following 
+Entry.BOLD_R		> ioctl (2)
+Entry.NONE		> requests are defined on file descriptors connected to either \fI/dev/random\fP 
+Entry.NONE		> or \fI/dev/urandom\fP. 
+Entry.NONE		> All requests performed will interact with the input 
+Entry.NONE		> entropy pool impacting both \fI/dev/random\fP and \fI/dev/urandom\fP. 
+Entry.NONE		> The 
+Entry.BOLD		> CAP_SYS_ADMIN
+Entry.NONE		> capability is required for all requests except 
+Entry.BOLD_R		> RNDGETENTCNT .
+Entry.PAR_TAG_N		> 
+Entry.BOLD_R		> RNDGETENTCNT
+Entry.NONE		> Retrieve the entropy count of the input pool, the contents will be the same 
+Entry.NONE		> as the 
+Entry.ITALICS		> entropy_avail
+Entry.NONE		> file under proc. 
+Entry.NONE		> The result will be stored in the int pointed to by the argument. 
+Entry.PAR_TAG_N		> 
+Entry.BOLD_R		> RNDADDTOENTCNT
+Entry.NONE		> Increment or decrement the entropy count of the input pool 
+Entry.NONE		> by the value pointed to by the argument. 
+Entry.PAR_TAG_N		> 
+Entry.BOLD_R		> RNDGETPOOL
+Entry.NONE		> Removed in Linux 2.6.9. 
+Entry.PAR_TAG_N		> 
+Entry.BOLD_R		> RNDADDENTROPY
+Entry.NONE		> Add some additional entropy to the input pool, 
+Entry.NONE		> incrementing the entropy count. 
+Entry.NONE		> This differs from writing to \fI/dev/random\fP or \fI/dev/urandom\fP, 
+Entry.NONE		> which only adds some 
+Entry.NONE		> data but does not increment the entropy count. 
+Entry.NONE		> The following structure is used: 
+Entry.PAR_TAG		> 
+Entry.INDENT		> +4n
+Entry.EXAMPLE_S		> 
+Entry.NONE		> struct rand_pool_info { 
+Entry.NONE		>     int    entropy_count; 
+Entry.NONE		>     int    buf_size; 
+Entry.NONE		>     __u32  buf[0]; 
+Entry.NONE		> }; 
+Entry.EXAMPLE_E		> 
+Entry.INDENT		> 
+Entry.PAR_TAG		> 
+Entry.NONE		> Here 
+Entry.ITALICS		> entropy_count
+Entry.NONE		> is the value added to (or subtracted from) the entropy count, and 
+Entry.ITALICS		> buf
+Entry.NONE		> is the buffer of size 
+Entry.ITALICS		> buf_size
+Entry.NONE		> which gets added to the entropy pool. 
+Entry.PAR_TAG_N		> 
+Entry.BOLD_R		> RNDZAPENTCNT ", " RNDCLEARPOOL
+Entry.NONE		> Zero the entropy count of all pools and add some system data (such as 
+Entry.NONE		> wall clock) to the pools. 
+Entry.SECTION		> FILES
+Entry.ITALICS		> /dev/random
+Entry.BREAK		> 
+Entry.ITALICS		> /dev/urandom
+Entry.SECTION		> NOTES
+Entry.NONE		> For an overview and comparison of the various interfaces that 
+Entry.NONE		> can be used to obtain randomness, see 
+Entry.BOLD_R		> random (7).
+Entry.SECTION		> BUGS
+Entry.NONE		> During early boot time, reads from 
+Entry.ITALICS		> /dev/urandom
+Entry.NONE		> may return data prior to the entropy pool being initialized. 
+Entry.COMMENT		> .SH AUTHOR
+Entry.COMMENT		> The kernel's random number generator was written by
+Entry.COMMENT		> Theodore Ts'o (tytso@athena.mit.edu).
+Entry.SECTION		> SEE ALSO
+Entry.BOLD_R		> mknod (1),
+Entry.BOLD_R		> getrandom (2),
+Entry.BOLD_R		> random (7)
+Entry.PARAGRAPH		> 
+Entry.NONE		> RFC\ 1750, "Randomness Recommendations for Security" 
+
+=> Done!
